@@ -12,6 +12,8 @@ jobs:
           flutter-version: '3.24.0'
       - name: Install dependencies
         run: cd "Find My CNI/find_my_cni_flutter" && flutter pub get
+      - name: Upgrade Android Embedding
+        run: cd "Find My CNI/find_my_cni_flutter" && flutter run --help > /dev/null || true
       - name: Build APK
         run: cd "Find My CNI/find_my_cni_flutter" && flutter build apk --release
       - name: Upload APK
