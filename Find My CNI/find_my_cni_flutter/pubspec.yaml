@@ -1,5 +1,5 @@
 name: find_my_cni
-description: "Application Flutter pour la recherche et déclaration de CNI au Cameroun"
+description: "Application Find My CNI"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -11,15 +11,15 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
-  supabase_flutter: ^2.3.4
-  image_picker: ^1.0.7
-  google_fonts: ^6.1.0
   intl: ^0.18.1
+  supabase_flutter: ^2.0.0
+  image_picker: ^1.0.7
+  google_fonts: ^5.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^2.0.3
 
 flutter:
   uses-material-design: true
