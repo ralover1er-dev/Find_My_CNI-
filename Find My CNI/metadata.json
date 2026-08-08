@@ -1,0 +1,6 @@
+{
+  "name": "Find My CNI",
+  "description": "Application citoyenne de recherche, déclaration et suivi de Carte Nationale d'Identité (CNI) au Cameroun.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
