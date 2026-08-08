@@ -9,7 +9,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.3.10'  # <-- CHANGE ICI
+          flutter-version: '3.24.0'
       - name: Install dependencies
         run: cd "Find My CNI/find_my_cni_flutter" && flutter pub get
       - name: Build APK
