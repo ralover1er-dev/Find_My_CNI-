@@ -1,0 +1,20 @@
+name: Unzip Project
+on:
+  workflow_dispatch:
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip
+        run: |
+          unzip "Find My CNI.zip" -d .
+          rm "Find My CNI.zip"
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Unzip project files" || echo "No changes to commit"
+          git push
