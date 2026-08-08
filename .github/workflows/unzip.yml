@@ -11,7 +11,7 @@ jobs:
       - name: List files
         run: ls -la
         
-      - name: Unzip
+      - name: Unzip ANY zip
         run: |
           unzip *.zip -d .
           rm *.zip
