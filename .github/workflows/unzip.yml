@@ -8,13 +8,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: List files
+      - name: Show files before
         run: ls -la
         
-      - name: Unzip ANY zip
+      - name: Download Project.zip
         run: |
-          unzip *.zip -d .
-          rm *.zip
+          curl -L -o Project.zip "https://github.com/ralover1er-dev/Find_My_CNI-/raw/main/Project.zip"
+          ls -la
+        
+      - name: Unzip
+        run: |
+          unzip "Project.zip" -d .
+          rm "Project.zip"
+          ls -la
           
       - name: Commit files
         run: |
