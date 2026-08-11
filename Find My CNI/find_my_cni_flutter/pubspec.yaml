@@ -9,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # app_links: ^6.4.1  <- COMMENTE ÇA
   url_launcher: ^6.3.0
   permission_handler: ^11.3.1
 
