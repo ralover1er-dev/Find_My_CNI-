@@ -9,15 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
-  # LES 3 PACKAGES QUI CASSAIENT
-  app_links: ^6.4.1
+  # app_links: ^6.4.1  <- COMMENTE ÇA
   url_launcher: ^6.3.0
   permission_handler: ^11.3.1
-  
-  # METS TES AUTRES PACKAGES ICI S'IL Y EN A
-  # provider: ^6.1.2
-  # http: ^1.2.2
 
 dev_dependencies:
   flutter_test:
@@ -26,7 +20,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
-  # Si tu as des assets
-  # assets:
-  #   - assets/
