@@ -1,4 +1,4 @@
-name: Build Flutter App V9
+name: Build Flutter App V10
 on:
   workflow_dispatch:
 jobs:
@@ -27,7 +27,6 @@ jobs:
       - name: Fix Android with repositories
         run: |
           cd find_my_cni_app/android
-          # 1. settings.gradle AVEC REPOSITORIES
           cat > settings.gradle << 'EOF'
           pluginManagement {
               repositories {
@@ -52,12 +51,36 @@ jobs:
           include ":app"
           EOF
           
-          # 2. compileSdk 34 + NOUVEAU NAMESPACE
           sed -i 's/compileSdkVersion 33/compileSdkVersion 34/g' app/build.gradle
           sed -i '/android {/a \ namespace "com.findmycni.app"' app/build.gradle
-          
-          # 3. Gradle 8.4
           echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-all.zip" > gradle/wrapper/gradle-wrapper.properties
+      
+      - name: Create Keystore
+        run: |
+          cd find_my_cni_app
+          keytool -genkey -v -keystore debug.keystore -alias key -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=FindMyCNI, OU=DEV, O=DEV, L=DOUALA, S=LITTORAL, C=CM"
+      
+      - name: Add signing to gradle
+        run: |
+          cd find_my_cni_app/android/app
+          cat >> build.gradle << 'EOF'
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file("debug.keystore")
+                      storePassword "123456"
+                      keyAlias "key"
+                      keyPassword "123456"
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                      minifyEnabled false
+                  }
+              }
+          }
+          EOF
       
       - name: Clean and Install dependencies
         run: |
@@ -65,11 +88,11 @@ jobs:
           flutter clean
           flutter pub get
       
-      - name: Build APK
+      - name: Build SIGNED APK
         run: cd find_my_cni_app && flutter build apk --release
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-v9
+          name: app-release-v10-SIGNED
           path: find_my_cni_app/build/app/outputs/flutter-apk/app-release.apk
