@@ -12,17 +12,23 @@ jobs:
         with:
           flutter-version: '3.24.0'
       
-      - name: Recreate Android V2
-        run: cd "Find My CNI/find_my_cni_flutter" && flutter create --platforms=android .
+      - name: Create new Flutter project
+        run: flutter create find_my_cni_app
+      
+      - name: Copy code to new project
+        run: |
+          cp -r "Find My CNI/find_my_cni_flutter/lib" find_my_cni_app/lib
+          cp "Find My CNI/find_my_cni_flutter/pubspec.yaml" find_my_cni_app/pubspec.yaml
+          cp -r "Find My CNI/find_my_cni_flutter/assets" find_my_cni_app/assets 2>/dev/null || true
       
       - name: Install dependencies
-        run: cd "Find My CNI/find_my_cni_flutter" && flutter pub get
+        run: cd find_my_cni_app && flutter pub get
       
       - name: Build APK
-        run: cd "Find My CNI/find_my_cni_flutter" && flutter build apk --release
+        run: cd find_my_cni_app && flutter build apk --release
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: Find My CNI/find_my_cni_flutter/build/app/outputs/flutter-apk/app-release.apk
+          path: find_my_cni_app/build/app/outputs/flutter-apk/app-release.apk
