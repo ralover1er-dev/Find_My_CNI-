@@ -1,5 +1,5 @@
 name: find_my_cni
-description: "Find My CNI - Application Flutter"
+description: "Find My CNI"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -9,17 +9,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # PACKAGES MIS A JOUR POUR FLUTTER 3.24.0
-  app_links: ^3.5.2
+  
+  # LES 3 PACKAGES QUI CASSAIENT
+  app_links: ^6.4.1
   url_launcher: ^6.3.0
   permission_handler: ^11.3.1
   
-  # AJOUTE TES AUTRES PACKAGES ICI
-  # Exemple:
+  # METS TES AUTRES PACKAGES ICI S'IL Y EN A
   # provider: ^6.1.2
   # http: ^1.2.2
-  # shared_preferences: ^2.3.3
 
 dev_dependencies:
   flutter_test:
@@ -29,7 +27,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   
-  # Si tu as des assets décommente et modifie
+  # Si tu as des assets
   # assets:
   #   - assets/
-  #   - assets/images/
