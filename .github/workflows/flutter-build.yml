@@ -1,4 +1,4 @@
-name: Build Flutter App V13
+name: Build Flutter App V14 DEBUG
 on:
   workflow_dispatch:
 jobs:
@@ -6,126 +6,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
-      
-      - name: Create new Flutter project
-        run: flutter create find_my_cni_app --platforms=android --org com.findmycni
-      
-      - name: Copy lib
-        run: cp -r "Find My CNI/find_my_cni_flutter/lib" find_my_cni_app/lib
-      
-      - name: Copy pubspec
-        run: cp "Find My CNI/find_my_cni_flutter/pubspec.yaml" find_my_cni_app/pubspec.yaml
-      
-      - name: Copy assets
-        run: cp -r "Find My CNI/find_my_cni_flutter/assets" find_my_cni_app/assets || echo "no assets"
-      
-      - name: Fix Android with repositories
-        run: |
+      - run: flutter create find_my_cni_app --platforms=android --org com.findmycni
+      - run: cp -r "Find My CNI/find_my_cni_flutter/lib" find_my_cni_app/lib
+      - run: cp "Find My CNI/find_my_cni_flutter/pubspec.yaml" find_my_cni_app/pubspec.yaml
+      - run: cp -r "Find My CNI/find_my_cni_flutter/assets" find_my_cni_app/assets || echo "no assets"
+      - run: |
           cd find_my_cni_app/android
-          cat > settings.gradle << 'EOF'
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-              def flutterSDKPath = {
-                  def properties = new Properties()
-                  file("local.properties").withInputStream { properties.load(it) }
-                  def flutterSdkPath = properties.getProperty("flutter.sdk")
-                  assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
-                  return flutterSdkPath
-              }()
-              includeBuild("$flutterSDKPath/packages/flutter_tools/gradle")
-          }
-          plugins {
-              id "dev.flutter.flutter-plugin-loader" version "1.0.0"
-              id "com.android.application" version "8.3.0" apply false
-              id "org.jetbrains.kotlin.android" version "1.9.0" apply false
-          }
-          include ":app"
-          EOF
-          
           sed -i 's/compileSdkVersion 33/compileSdkVersion 34/g' app/build.gradle
           sed -i '/android {/a \ namespace "com.findmycni.app"' app/build.gradle
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-all.zip" > gradle/wrapper/gradle-wrapper.properties
-      
-      - name: Create Keystore
-        run: |
-          cd find_my_cni_app
-          keytool -genkey -v -keystore debug.keystore -alias key -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=FindMyCNI, OU=DEV, O=DEV, L=DOUALA, S=LITTORAL, C=CM"
-          mv debug.keystore android/app/debug.keystore
-      
-      - name: Overwrite build.gradle with signing + Java 17
-        run: |
-          cd find_my_cni_app/android/app
-          cat > build.gradle << 'EOF'
-          plugins {
-              id "com.android.application"
-              id "kotlin-android"
-              id "dev.flutter.flutter-gradle-plugin"
-          }
-
-          android {
-              namespace "com.findmycni.app"
-              compileSdkVersion 34
-
-              defaultConfig {
-                  applicationId "com.findmycni.app"
-                  minSdkVersion 21
-                  targetSdkVersion 34
-                  versionCode 1
-                  versionName "1.0"
-              }
-
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_17
-                  targetCompatibility JavaVersion.VERSION_17
-              }
-
-              kotlinOptions {
-                  jvmTarget = '17'
-              }
-
-              signingConfigs {
-                  release {
-                      storeFile file("debug.keystore")
-                      storePassword "123456"
-                      keyAlias "key"
-                      keyPassword "123456"
-                  }
-              }
-
-              buildTypes {
-                  release {
-                      signingConfig signingConfigs.release
-                      minifyEnabled false
-                      shrinkResources false
-                  }
-              }
-          }
-
-          flutter {
-              source '../..'
-          }
-          EOF
-      
-      - name: Clean and Install dependencies
-        run: |
-          cd find_my_cni_app 
-          flutter clean
-          flutter pub get
-      
-      - name: Build SIGNED APK
-        run: cd find_my_cni_app && flutter build apk --release --no-tree-shake-icons
-      
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - run: cd find_my_cni_app && flutter clean && flutter pub get
+      - run: cd find_my_cni_app && flutter build apk --debug
+      - uses: actions/upload-artifact@v4
         with:
-          name: app-release-v13-SIGNED
-          path: find_my_cni_app/build/app/outputs/flutter-apk/app-release.apk
+          name: app-debug-v14
+          path: find_my_cni_app/build/app/outputs/flutter-apk/app-debug.apk
