@@ -1,4 +1,4 @@
-name: Build Flutter App V11
+name: Build Flutter App V12
 on:
   workflow_dispatch:
 jobs:
@@ -61,11 +61,50 @@ jobs:
           keytool -genkey -v -keystore debug.keystore -alias key -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=FindMyCNI, OU=DEV, O=DEV, L=DOUALA, S=LITTORAL, C=CM"
           mv debug.keystore android/app/debug.keystore
       
-      - name: Add signing to app build.gradle
+      - name: Overwrite build.gradle with signing
         run: |
           cd find_my_cni_app/android/app
-          # On ajoute juste avant la dernière }
-          sed -i '/^}$/i\    signingConfigs {\n        release {\n            storeFile file("debug.keystore")\n            storePassword "123456"\n            keyAlias "key"\n            keyPassword "123456"\n        }\n    }\n    buildTypes {\n        release {\n            signingConfig signingConfigs.release\n            minifyEnabled false\n            shrinkResources false\n        }\n    }' build.gradle
+          cat > build.gradle << 'EOF'
+          plugins {
+              id "com.android.application"
+              id "kotlin-android"
+              id "dev.flutter.flutter-gradle-plugin"
+          }
+
+          android {
+              namespace "com.findmycni.app"
+              compileSdkVersion 34
+
+              defaultConfig {
+                  applicationId "com.findmycni.app"
+                  minSdkVersion 21
+                  targetSdkVersion 34
+                  versionCode 1
+                  versionName "1.0"
+              }
+
+              signingConfigs {
+                  release {
+                      storeFile file("debug.keystore")
+                      storePassword "123456"
+                      keyAlias "key"
+                      keyPassword "123456"
+                  }
+              }
+
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                      minifyEnabled false
+                      shrinkResources false
+                  }
+              }
+          }
+
+          flutter {
+              source '../..'
+          }
+          EOF
       
       - name: Clean and Install dependencies
         run: |
@@ -79,5 +118,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-v11-SIGNED
+          name: app-release-v12-SIGNED
           path: find_my_cni_app/build/app/outputs/flutter-apk/app-release.apk
