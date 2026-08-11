@@ -1,4 +1,4 @@
-name: Build Flutter App V15 DEBUG
+name: Build Flutter App V16 DEBUG
 on:
   workflow_dispatch:
 jobs:
@@ -15,11 +15,14 @@ jobs:
       - run: cp "Find My CNI/find_my_cni_flutter/pubspec.yaml" find_my_cni_app/pubspec.yaml
       - run: cp -r "Find My CNI/find_my_cni_flutter/assets" find_my_cni_app/assets || echo "no assets"
       
-      - name: Fix Android + Kotlin 1.9.22
+      - name: Fix Android + Kotlin + Gradle 8.4
         run: |
           cd find_my_cni_app/android
           
-          # Fix settings.gradle pour Kotlin
+          # 1. Forcer Gradle 8.4
+          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-all.zip" > gradle/wrapper/gradle-wrapper.properties
+          
+          # 2. Fix settings.gradle avec Kotlin 1.9.22
           cat > settings.gradle << 'EOF'
           pluginManagement {
               repositories {
@@ -44,7 +47,7 @@ jobs:
           include ":app"
           EOF
           
-          # Fix build.gradle
+          # 3. Fix build.gradle
           sed -i 's/compileSdkVersion 33/compileSdkVersion 34/g' app/build.gradle
           sed -i '/android {/a \ namespace "com.findmycni.app"' app/build.gradle
       
@@ -53,5 +56,5 @@ jobs:
       
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-v15
+          name: app-debug-v16
           path: find_my_cni_app/build/app/outputs/flutter-apk/app-debug.apk
