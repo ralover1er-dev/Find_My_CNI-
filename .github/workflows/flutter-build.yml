@@ -24,21 +24,21 @@ jobs:
       - name: Copy assets
         run: cp -r "Find My CNI/find_my_cni_flutter/assets" find_my_cni_app/assets || echo "no assets"
       
-      - name: Force Android to Flutter 3.24 standards
+      - name: Force Android to Kotlin 1.8.22
         run: |
           cd find_my_cni_app/android
-          # 1. PATCH LE VRAI FICHIER: settings.gradle
-          sed -i "s/id 'org.jetbrains.kotlin.android' version '[0-9.]*'/id 'org.jetbrains.kotlin.android' version '1.9.24'/" settings.gradle
+          # 1. KOTLIN 1.8.22 - LA VERSION MAGIQUE
+          sed -i "s/id 'org.jetbrains.kotlin.android' version '[0-9.]*'/id 'org.jetbrains.kotlin.android' version '1.8.22'/" settings.gradle
           
-          # 2. AGP 8.3.0
-          sed -i "s/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.3.0/" build.gradle
+          # 2. AGP compatible avec Kotlin 1.8.22
+          sed -i "s/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.1.4/" build.gradle
           
           # 3. compileSdk 34 + namespace
           sed -i 's/compileSdkVersion 33/compileSdkVersion 34/g' app/build.gradle
           sed -i '/android {/a \ namespace "com.example.find_my_cni_app"' app/build.gradle
           
-          # 4. Gradle 8.4
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-all.zip" > gradle/wrapper/gradle-wrapper.properties
+          # 4. Gradle 8.2 compatible
+          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-all.zip" > gradle/wrapper/gradle-wrapper.properties
       
       - name: Clean and Install dependencies
         run: |
