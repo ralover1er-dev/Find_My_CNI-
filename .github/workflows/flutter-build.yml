@@ -24,12 +24,17 @@ jobs:
       - name: Copy assets
         run: cp -r "Find My CNI/find_my_cni_flutter/assets" find_my_cni_app/assets || echo "no assets"
       
-      - name: Fix Android properly
+      - name: Fix Android with repositories
         run: |
           cd find_my_cni_app/android
-          # 1. ÉCRIRE PROPREMENT settings.gradle
+          # 1. settings.gradle AVEC REPOSITORIES
           cat > settings.gradle << 'EOF'
           pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
               def flutterSDKPath = {
                   def properties = new Properties()
                   file("local.properties").withInputStream { properties.load(it) }
