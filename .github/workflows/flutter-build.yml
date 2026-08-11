@@ -1,4 +1,4 @@
-name: Build Flutter App V16 DEBUG
+name: Build Flutter App V17 DEBUG
 on:
   workflow_dispatch:
 jobs:
@@ -10,7 +10,7 @@ jobs:
         with:
           flutter-version: '3.24.0'
       
-      - run: flutter create find_my_cni_app --platforms=android --org com.findmycni
+      - run: flutter create find_my_cni_app --platforms=android --org com.google.aistudio
       - run: cp -r "Find My CNI/find_my_cni_flutter/lib" find_my_cni_app/lib
       - run: cp "Find My CNI/find_my_cni_flutter/pubspec.yaml" find_my_cni_app/pubspec.yaml
       - run: cp -r "Find My CNI/find_my_cni_flutter/assets" find_my_cni_app/assets || echo "no assets"
@@ -19,10 +19,8 @@ jobs:
         run: |
           cd find_my_cni_app/android
           
-          # 1. Forcer Gradle 8.4
           echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-all.zip" > gradle/wrapper/gradle-wrapper.properties
           
-          # 2. Fix settings.gradle avec Kotlin 1.9.22
           cat > settings.gradle << 'EOF'
           pluginManagement {
               repositories {
@@ -47,14 +45,13 @@ jobs:
           include ":app"
           EOF
           
-          # 3. Fix build.gradle
           sed -i 's/compileSdkVersion 33/compileSdkVersion 34/g' app/build.gradle
-          sed -i '/android {/a \ namespace "com.findmycni.app"' app/build.gradle
+          # ON NE MET PLUS LE NAMESPACE ICI
       
       - run: cd find_my_cni_app && flutter clean && flutter pub get
       - run: cd find_my_cni_app && flutter build apk --debug
       
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-v16
+          name: app-debug-v17
           path: find_my_cni_app/build/app/outputs/flutter-apk/app-debug.apk
