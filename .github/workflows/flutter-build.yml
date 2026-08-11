@@ -6,16 +6,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'  # <-- ON REMET 3.24.0
+          flutter-version: '3.24.0'
+      
+      - name: Create new Flutter project
+        run: flutter create find_my_cni_app --platforms=android
+      
+      - name: Copy lib
+        run: cp -r "Find My CNI/find_my_cni_flutter/lib" find_my_cni_app/lib
+      
+      - name: Copy pubspec
+        run: cp "Find My CNI/find_my_cni_flutter/pubspec.yaml" find_my_cni_app/pubspec.yaml
+      
+      - name: Copy assets
+        run: cp -r "Find My CNI/find_my_cni_flutter/assets" find_my_cni_app/assets || echo "no assets"
+      
       - name: Install dependencies
-        run: cd "Find My CNI/find_my_cni_flutter" && flutter pub get
+        run: cd find_my_cni_app && flutter pub get
+      
       - name: Build APK
-        run: cd "Find My CNI/find_my_cni_flutter" && flutter build apk --release --no-android-gradle-daemon
+        run: cd find_my_cni_app && flutter build apk --release
+      
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: Find My CNI/find_my_cni_flutter/build/app/outputs/flutter-apk/app-release.apk
+          path: find_my_cni_app/build/app/outputs/flutter-apk/app-release.apk
