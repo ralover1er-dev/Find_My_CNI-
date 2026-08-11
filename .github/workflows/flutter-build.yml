@@ -24,8 +24,11 @@ jobs:
       - name: Copy assets
         run: cp -r "Find My CNI/find_my_cni_flutter/assets" find_my_cni_app/assets || echo "no assets"
       
-      - name: Install dependencies
-        run: cd find_my_cni_app && flutter pub get
+      - name: Clean and Install dependencies
+        run: |
+          cd find_my_cni_app 
+          flutter clean
+          flutter pub get
       
       - name: Build APK
         run: cd find_my_cni_app && flutter build apk --release
