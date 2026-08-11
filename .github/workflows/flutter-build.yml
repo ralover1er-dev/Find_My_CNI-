@@ -24,6 +24,12 @@ jobs:
       - name: Copy assets
         run: cp -r "Find My CNI/find_my_cni_flutter/assets" find_my_cni_app/assets || echo "no assets"
       
+      - name: Force compileSdk 34
+        run: |
+          cd find_my_cni_app/android
+          sed -i 's/compileSdkVersion 33/compileSdkVersion 34/g' app/build.gradle
+          sed -i 's/compileSdkVersion 33/compileSdkVersion 34/g' build.gradle
+      
       - name: Clean and Install dependencies
         run: |
           cd find_my_cni_app 
