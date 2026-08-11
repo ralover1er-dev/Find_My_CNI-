@@ -1,39 +1,28 @@
 name: Build Flutter App
-
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Java Development Kit (JDK)
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Set up Flutter SDK
+      
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.x'
-          channel: 'stable'
-          cache: true
-
-      - name: Get Flutter Dependencies
-        run: flutter pub get
-
+          flutter-version: '3.24.0'
+      
+      - name: Recreate Android V2
+        run: cd "Find My CNI/find_my_cni_flutter" && flutter create --platforms=android .
+      
+      - name: Install dependencies
+        run: cd "Find My CNI/find_my_cni_flutter" && flutter pub get
+      
       - name: Build APK
-        run: flutter build apk --release
-
-      - name: Upload APK Artifact
+        run: cd "Find My CNI/find_my_cni_flutter" && flutter build apk --release
+      
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: app-release
+          path: Find My CNI/find_my_cni_flutter/build/app/outputs/flutter-apk/app-release.apk
