@@ -1,4 +1,4 @@
-name: Build Flutter App V18 DEBUG
+name: Build Flutter App V19 DEBUG
 on:
   workflow_dispatch:
 jobs:
@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Find My CNI/find_my_cni_flutter  # <-- ON ENTRE DIRECT ICI
+        working-directory: "Find My CNI/find_my_cni_flutter"  # <-- GUILLEMETS ICI
     steps:
       - uses: actions/checkout@v4
       
@@ -53,5 +53,5 @@ jobs:
       
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-v18
-          path: build/app/outputs/flutter-apk/app-debug.apk  # <-- plus besoin du prefix
+          name: app-debug-v19
+          path: build/app/outputs/flutter-apk/app-debug.apk
