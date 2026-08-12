@@ -1,4 +1,4 @@
-name: Build Flutter App V19 DEBUG
+name: Build Flutter App V20 DEBUG
 on:
   workflow_dispatch:
 jobs:
@@ -6,52 +6,23 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: "Find My CNI/find_my_cni_flutter"  # <-- GUILLEMETS ICI
+        working-directory: "Find My CNI/find_my_cni_flutter"  # <-- DOSSIER DE TON PROJET
     steps:
       - uses: actions/checkout@v4
+      
+      - name: List files to debug
+        run: ls -la  # <-- POUR VOIR SI android/ EXISTE VRAIMENT
       
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
+          channel: 'stable'
       
+      - run: flutter clean
       - run: flutter pub get
-      
-      - name: Fix Android + Kotlin + Gradle 8.4
-        run: |
-          cd android
-          
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-all.zip" > gradle/wrapper/gradle-wrapper.properties
-          
-          cat > settings.gradle << 'EOF'
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-              def flutterSDKPath = {
-                  def properties = new Properties()
-                  file("local.properties").withInputStream { properties.load(it) }
-                  def flutterSdkPath = properties.getProperty("flutter.sdk")
-                  assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
-                  return flutterSdkPath
-              }()
-              includeBuild("$flutterSDKPath/packages/flutter_tools/gradle")
-          }
-          plugins {
-              id "dev.flutter.flutter-plugin-loader" version "1.0.0"
-              id "com.android.application" version "8.3.0" apply false
-              id "org.jetbrains.kotlin.android" version "1.9.22" apply false
-          }
-          include ":app"
-          EOF
-          
-          sed -i 's/compileSdkVersion 33/compileSdkVersion 34/g' app/build.gradle
-      
-      - run: flutter clean && flutter pub get
-      - run: flutter build apk --debug
+      - run: flutter build apk --debug  # <-- ON LAISSE FLUTTER GERER GRADLE
       
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-v19
+          name: app-debug-v20
           path: build/app/outputs/flutter-apk/app-debug.apk
