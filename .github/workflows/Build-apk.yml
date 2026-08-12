@@ -1,0 +1,39 @@
+name: Build Flutter App V24 DEBUG
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Go to flutter folder and build
+        run: |
+          cd "Find My CNI/find_my_cni_flutter"
+          flutter clean
+          flutter create . --platforms=android
+          
+          sed -i '/permission_handler/a\  google_fonts: ^6.2.1' pubspec.yaml
+          sed -i "s/sdk: '>=3.3.0 <4.0.0'/sdk: '>=3.3.2 <4.0.0'/g" pubspec.yaml
+          
+          mkdir -p lib/utils
+          printf "import 'package:flutter/material.dart';\nShapeBorder RoundedCornerShape(double radius) {\n  return RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));\n}" > lib/utils/widgets.dart
+          
+          sed -i '1i import "package:find_my_cni/utils/widgets.dart";' lib/screens/declaration_trouve_screen.dart
+          sed -i '1i import "package:find_my_cni/utils/widgets.dart";' lib/screens/card_detail_screen.dart
+          sed -i '1i import "package:find_my_cni/utils/widgets.dart";' lib/screens/profile_screen.dart
+          
+          find lib -name "*.dart" -exec sed -i 's/GoogleFonts\./TextStyle(fontFamily: "Roboto", /g' {} +
+          
+          flutter pub get
+          flutter build apk --debug
+      
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-v24
+          path: Find\ My\ CNI/find_my_cni_flutter/build/app/outputs/flutter-apk/app-debug.apk
