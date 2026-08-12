@@ -29,8 +29,6 @@ jobs:
         run: |
           mkdir -p lib/utils
           printf "import 'package:flutter/material.dart';\nShapeBorder RoundedCornerShape(double radius) {\n  return RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));\n}" > lib/utils/widgets.dart
-          
-          # Ajoute l'import dans les 3 fichiers qui bug
           sed -i '1i import "package:find_my_cni/utils/widgets.dart";' lib/screens/declaration_trouve_screen.dart
           sed -i '1i import "package:find_my_cni/utils/widgets.dart";' lib/screens/card_detail_screen.dart
           sed -i '1i import "package:find_my_cni/utils/widgets.dart";' lib/screens/profile_screen.dart
