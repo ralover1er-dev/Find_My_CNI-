@@ -1,4 +1,4 @@
-name: Build Flutter App V24 DEBUG
+name: Build Flutter App V25 DEBUG
 on:
   workflow_dispatch:
 jobs:
@@ -18,16 +18,20 @@ jobs:
           flutter clean
           flutter create . --platforms=android
           
-          sed -i '/permission_handler/a\  google_fonts: ^6.2.1' pubspec.yaml
+          # FIX 1: Ajoute image_picker + google_fonts
+          sed -i '/permission_handler/a\  google_fonts: ^6.2.1\n  image_picker: ^1.0.7' pubspec.yaml
           sed -i "s/sdk: '>=3.3.0 <4.0.0'/sdk: '>=3.3.2 <4.0.0'/g" pubspec.yaml
           
+          # FIX 2: Crée RoundedCornerShape qui retourne OutlinedBorder
           mkdir -p lib/utils
-          printf "import 'package:flutter/material.dart';\nShapeBorder RoundedCornerShape(double radius) {\n  return RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));\n}" > lib/utils/widgets.dart
+          printf "import 'package:flutter/material.dart';\nOutlinedBorder RoundedCornerShape(double radius) {\n  return RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));\n}" > lib/utils/widgets.dart
           
           sed -i '1i import "package:find_my_cni/utils/widgets.dart";' lib/screens/declaration_trouve_screen.dart
           sed -i '1i import "package:find_my_cni/utils/widgets.dart";' lib/screens/card_detail_screen.dart
           sed -i '1i import "package:find_my_cni/utils/widgets.dart";' lib/screens/profile_screen.dart
           
+          # FIX 3: Ajoute import image_picker + Disable GoogleFonts
+          sed -i '1i import "package:image_picker/image_picker.dart";' lib/screens/declaration_trouve_screen.dart
           find lib -name "*.dart" -exec sed -i 's/GoogleFonts\./TextStyle(fontFamily: "Roboto", /g' {} +
           
           flutter pub get
@@ -35,5 +39,5 @@ jobs:
       
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-v24
+          name: app-debug-v25
           path: Find\ My\ CNI/find_my_cni_flutter/build/app/outputs/flutter-apk/app-debug.apk
