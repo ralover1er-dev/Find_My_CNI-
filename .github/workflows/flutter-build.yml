@@ -1,4 +1,4 @@
-name: Build Flutter App V21 DEBUG
+name: Build Flutter App V22 DEBUG - AUTO FIX
 on:
   workflow_dispatch:
 jobs:
@@ -18,12 +18,33 @@ jobs:
       - run: flutter clean
       
       - name: Recreate Android folder
-        run: flutter create . --platforms=android  # <-- ÇA RECREE android/
+        run: flutter create . --platforms=android
+      
+      - name: Add google_fonts to pubspec
+        run: |
+          sed -i '/permission_handler/a\  google_fonts: ^6.2.1' pubspec.yaml
+          sed -i "s/sdk: '>=3.3.0 <4.0.0'/sdk: '>=3.3.2 <4.0.0'/g" pubspec.yaml
+      
+      - name: Create RoundedCornerShape function
+        run: |
+          mkdir -p lib/utils
+          echo "import 'package:flutter/material.dart';
+          ShapeBorder RoundedCornerShape(double radius) {
+            return RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));
+          }" > lib/utils/widgets.dart
+          
+          # Ajoute l'import dans les 3 fichiers qui bug
+          sed -i '1i import '\''package:find_my_cni/utils/widgets.dart'\'';' lib/screens/declaration_trouve_screen.dart
+          sed -i '1i import '\''package:find_my_cni/utils/widgets.dart'\'';' lib/screens/card_detail_screen.dart  
+          sed -i '1i import '\''package:find_my_cni/utils/widgets.dart'\'';' lib/screens/profile_screen.dart
+      
+      - name: Disable GoogleFonts temporarily
+        run: sed -i 's/GoogleFonts\./TextStyle(fontFamily: '\''Roboto'\'', /g' lib/**/*.dart
       
       - run: flutter pub get
       - run: flutter build apk --debug
       
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-v21
+          name: app-debug-v22
           path: build/app/outputs/flutter-apk/app-debug.apk
