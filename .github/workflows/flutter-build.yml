@@ -1,4 +1,4 @@
-name: Build Flutter App V20 DEBUG
+name: Build Flutter App V21 DEBUG
 on:
   workflow_dispatch:
 jobs:
@@ -6,12 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: "Find My CNI/find_my_cni_flutter"  # <-- DOSSIER DE TON PROJET
+        working-directory: "Find My CNI/find_my_cni_flutter"
     steps:
       - uses: actions/checkout@v4
-      
-      - name: List files to debug
-        run: ls -la  # <-- POUR VOIR SI android/ EXISTE VRAIMENT
       
       - uses: subosito/flutter-action@v2
         with:
@@ -19,10 +16,14 @@ jobs:
           channel: 'stable'
       
       - run: flutter clean
+      
+      - name: Recreate Android folder
+        run: flutter create . --platforms=android  # <-- ÇA RECREE android/
+      
       - run: flutter pub get
-      - run: flutter build apk --debug  # <-- ON LAISSE FLUTTER GERER GRADLE
+      - run: flutter build apk --debug
       
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-v20
+          name: app-debug-v21
           path: build/app/outputs/flutter-apk/app-debug.apk
