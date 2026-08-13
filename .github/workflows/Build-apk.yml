@@ -1,4 +1,4 @@
-name: Build Flutter App V28 DEBUG - FINAL FIX
+name: Build Flutter App V29 DEBUG - CACHE SMART
 on:
   workflow_dispatch:
 
@@ -14,23 +14,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Cache Gradle
-        uses: actions/cache@v4
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            android/.gradle
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-
+          gradle-home-cache-cleanup: true
+      
       - name: Cache Flutter
         uses: actions/cache@v4
         with:
           path: |
             ~/.pub-cache
-            build/
           key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
             flutter-${{ runner.os }}-
@@ -42,12 +35,18 @@ jobs:
           channel: 'stable'
           cache: true
       
+      - name: Fix Gradle Memory + Network
+        run: |
+          echo "org.gradle.jvmargs=-Xmx4096M -Dfile.encoding=UTF-8 -Dkotlin.daemon.jvm.options=\"-Xmx4096M\"" >> android/gradle.properties
+          echo "org.gradle.networktimeout=300000" >> android/gradle.properties
+          echo "org.gradle.parallel=true" >> android/gradle.properties
+          echo "org.gradle.caching=true" >> android/gradle.properties
+      
       - name: Build APK
         run: |
           cd "Find My CNI/find_my_cni_flutter"
           
           flutter clean
-          flutter create . --platforms=android
           
           # FIX DEPENDENCIES
           sed -i '/permission_handler/a\  google_fonts: ^6.2.1\n  image_picker: ^1.0.7' pubspec.yaml
@@ -64,12 +63,10 @@ jobs:
           
           flutter pub get
           
-          # BUILD EN MODE OFFLINE POUR EVITER LE SOCKETEXCEPTION
-          cd android
-          ./gradlew assembleDebug --offline --no-daemon --stacktrace
-          cd ..
+          # BUILD NORMAL - PAS OFFLINE LA 1ERE FOIS
+          flutter build apk --debug --no-pub
           
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-v28
+          name: app-debug-v29
           path: Find\ My\ CNI/find_my_cni_flutter/build/app/outputs/flutter-apk/app-debug.apk
