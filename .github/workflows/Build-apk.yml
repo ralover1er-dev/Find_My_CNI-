@@ -1,4 +1,4 @@
-name: Build Flutter App V30 DEBUG - NO CACHE BUG
+name: Build Flutter App V31 DEBUG - FIX PATH
 on:
   workflow_dispatch:
 
@@ -21,19 +21,12 @@ jobs:
           channel: 'stable'
           cache: true
       
-      - name: Fix Android Config
-        run: |
-          cd "Find My CNI/find_my_cni_flutter"
-          echo "org.gradle.jvmargs=-Xmx2048M -Dfile.encoding=UTF-8" >> android/gradle.properties
-          echo "org.gradle.networktimeout=300000" >> android/gradle.properties
-          echo "android.enableJetifier=true" >> android/gradle.properties
-          echo "android.useAndroidX=true" >> android/gradle.properties
-          
-      - name: Build APK
+      - name: Prepare Project
         run: |
           cd "Find My CNI/find_my_cni_flutter"
           
           flutter clean
+          flutter create . --platforms=android  # <-- IMPORTANT: recréer le dossier android
           
           # FIX DEPENDENCIES
           sed -i '/permission_handler/a\  google_fonts: ^6.2.1\n  image_picker: ^1.0.7' pubspec.yaml
@@ -48,12 +41,21 @@ jobs:
           sed -i '1i import "package:image_picker/image_picker.dart";' lib/screens/declaration_trouve_screen.dart
           find lib -name "*.dart" -exec sed -i 's/GoogleFonts\./TextStyle(fontFamily: "Roboto", /g' {} +
           
-          flutter pub get
+      - name: Fix Android Config
+        run: |
+          cd "Find My CNI/find_my_cni_flutter"
+          echo "org.gradle.jvmargs=-Xmx2048M -Dfile.encoding=UTF-8" >> android/gradle.properties
+          echo "org.gradle.networktimeout=300000" >> android/gradle.properties
+          echo "android.enableJetifier=true" >> android/gradle.properties
+          echo "android.useAndroidX=true" >> android/gradle.properties
           
-          # BUILD SANS CACHE GRADLE COMPLIQUÉ
+      - name: Get Packages & Build
+        run: |
+          cd "Find My CNI/find_my_cni_flutter"
+          flutter pub get
           flutter build apk --debug
           
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-v30
+          name: app-debug-v31
           path: Find\ My\ CNI/find_my_cni_flutter/build/app/outputs/flutter-apk/app-debug.apk
