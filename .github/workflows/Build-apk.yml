@@ -1,4 +1,4 @@
-name: Build Flutter App V29 DEBUG - CACHE SMART
+name: Build Flutter App V30 DEBUG - NO CACHE BUG
 on:
   workflow_dispatch:
 
@@ -14,20 +14,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v3
-        with:
-          gradle-home-cache-cleanup: true
-      
-      - name: Cache Flutter
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-          key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            flutter-${{ runner.os }}-
-      
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -35,13 +21,14 @@ jobs:
           channel: 'stable'
           cache: true
       
-      - name: Fix Gradle Memory + Network
+      - name: Fix Android Config
         run: |
-          echo "org.gradle.jvmargs=-Xmx4096M -Dfile.encoding=UTF-8 -Dkotlin.daemon.jvm.options=\"-Xmx4096M\"" >> android/gradle.properties
+          cd "Find My CNI/find_my_cni_flutter"
+          echo "org.gradle.jvmargs=-Xmx2048M -Dfile.encoding=UTF-8" >> android/gradle.properties
           echo "org.gradle.networktimeout=300000" >> android/gradle.properties
-          echo "org.gradle.parallel=true" >> android/gradle.properties
-          echo "org.gradle.caching=true" >> android/gradle.properties
-      
+          echo "android.enableJetifier=true" >> android/gradle.properties
+          echo "android.useAndroidX=true" >> android/gradle.properties
+          
       - name: Build APK
         run: |
           cd "Find My CNI/find_my_cni_flutter"
@@ -63,10 +50,10 @@ jobs:
           
           flutter pub get
           
-          # BUILD NORMAL - PAS OFFLINE LA 1ERE FOIS
-          flutter build apk --debug --no-pub
+          # BUILD SANS CACHE GRADLE COMPLIQUÉ
+          flutter build apk --debug
           
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-v29
+          name: app-debug-v30
           path: Find\ My\ CNI/find_my_cni_flutter/build/app/outputs/flutter-apk/app-debug.apk
